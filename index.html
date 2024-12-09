@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHEARE.VD - File Sharing</title>
+    <style>
+        /* General body styles for dark mode */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #ffffff;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: typing 2.5s steps(30) 1s forwards, blink 0.75s step-end infinite;
+            letter-spacing: 1px;
+        }
+
+        /* Typing and blinking cursor animation */
+        @keyframes typing {
+            from {
+                width: 0;
+            }
+
+            to {
+                width: 100%;
+            }
+        }
+
+        @keyframes blink {
+            50% {
+                border-color: transparent;
+            }
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background-color: #1e1e1e;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            text-align: center;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .container:hover {
+            transform: scale(1.05);
+            /* Slight zoom-in effect on hover */
+        }
+
+        .upload-form {
+            margin-bottom: 30px;
+        }
+
+        input[type="file"] {
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #555;
+            border-radius: 8px;
+            background-color: #333;
+            color: #fff;
+            width: 100%;
+            /* Full width on mobile */
+            max-width: 350px;
+            /* Limit size on larger screens */
+            outline: none;
+            transition: border-color 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        input[type="file"]:focus {
+            border-color: #4CAF50;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            /* Full width on mobile */
+            max-width: 350px;
+            /* Limit size on larger screens */
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        li {
+            background-color: #333;
+            padding: 15px;
+            margin: 8px 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: box-shadow 0.3s ease-in-out;
+        }
+
+        li:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .file-link {
+            color: #1e88e5;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .file-link:hover {
+            color: #0d6efd;
+        }
+
+        /* Subtle hover effect for file list button */
+        button.download {
+            background-color: #007bff;
+            color: white;
+            border-radius: 6px;
+            padding: 8px 15px;
+        }
+
+        button.download:hover {
+            background-color: #0056b3;
+        }
+
+        /* Status text */
+        #upload-status {
+            color: #76ff03;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        /* Mobile-friendly adjustments */
+        @media screen and (max-width: 600px) {
+            h1 {
+                font-size: 28px;
+                /* Smaller font size on mobile */
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            input[type="file"],
+            button {
+                width: 100%;
+                /* Full width on small screens */
+                max-width: 100%;
+                /* Remove max-width on small screens */
+            }
+
+            button {
+                padding: 14px;
+                /* Increase button padding for better tap target */
+            }
+
+            ul {
+                margin-top: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Welcome to SHEARE.VD</h1>
+
+    <div class="container">
+        <!-- File Upload Section -->
+        <div class="upload-form">
+            <h2>Upload a File</h2>
+            <form id="upload-form">
+                <input type="file" id="file-input" required>
+                <button type="submit">Upload</button>
+            </form>
+            <p id="upload-status"></p>
+        </div>
+
+        <!-- File List Section -->
+        <h2>Uploaded Files</h2>
+        <ul id="file-list"></ul>
+    </div>
+
+    <script>
+        // Handle File Upload and Listing
+        document.getElementById('upload-form').addEventListener('submit', function (event) {
+            event.preventDefault();  // Prevent the form from submitting normally
+
+            const fileInput = document.getElementById('file-input');
+            const file = fileInput.files[0];  // Get the file selected by the user
+
+            if (file) {
+                // Simulate uploading by saving to localStorage
+                const fileName = file.name;
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    // Save file content in localStorage (limited to small files)
+                    localStorage.setItem(fileName, e.target.result);
+
+                    // Notify the user
+                    document.getElementById('upload-status').textContent = `File '${fileName}' uploaded successfully!`;
+                    fetchFiles();  // Refresh the file list
+                };
+
+                // Read the file as data URL (this can be modified based on your use case)
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Fetch and display files from localStorage
+        function fetchFiles() {
+            const fileList = document.getElementById('file-list');
+            fileList.innerHTML = '';  // Clear the current list of files
+
+            const allFiles = Object.keys(localStorage);  // Get all keys from localStorage
+
+            if (allFiles.length === 0) {
+                fileList.innerHTML = '<li>No files uploaded yet.</li>';
+            }
+
+            // Iterate through the files and create list items
+            allFiles.forEach(fileName => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `${fileName} <button class="download" onclick="downloadFile('${fileName}')">Download</button>`;
+                fileList.appendChild(listItem);
+            });
+        }
+
+        // Simulate downloading files from localStorage
+        function downloadFile(fileName) {
+            const fileContent = localStorage.getItem(fileName);
+
+            const link = document.createElement('a');
+            link.href = fileContent;
+            link.download = fileName;
+            link.click();
+        }
+
+        // Initial Load: Fetch files when the page loads
+        fetchFiles();
+    </script>
+</body>
+
+</html>
